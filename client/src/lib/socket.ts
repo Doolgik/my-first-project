@@ -12,6 +12,9 @@ const CLUSTER = import.meta.env.VITE_PUSHER_CLUSTER || 'mt1';
 const HOST = import.meta.env.VITE_PUSHER_HOST;
 const PORT = import.meta.env.VITE_PUSHER_PORT;
 const USE_TLS = import.meta.env.VITE_PUSHER_USE_TLS === 'true';
+// Optional path prefix, so the broker WebSocket can be reverse-proxied behind
+// the same origin as the app (single public endpoint).
+const WS_PATH = import.meta.env.VITE_PUSHER_WS_PATH;
 
 let pusher: Pusher | null = null;
 export const PRESENCE_CHANNEL = 'presence-online';
@@ -27,7 +30,13 @@ export function connectPusher(): Pusher {
     cluster: CLUSTER,
     forceTLS: HOST ? USE_TLS : true,
     ...(HOST
-      ? { wsHost: HOST, wsPort: PORT ? Number(PORT) : 6001, wssPort: PORT ? Number(PORT) : 6001, enabledTransports: ['ws', 'wss'] as ('ws' | 'wss')[] }
+      ? {
+          wsHost: HOST,
+          wsPort: PORT ? Number(PORT) : 6001,
+          wssPort: PORT ? Number(PORT) : 6001,
+          enabledTransports: ['ws', 'wss'] as ('ws' | 'wss')[],
+          ...(WS_PATH ? { wsPath: WS_PATH } : {}),
+        }
       : {}),
     // Authorize private/presence channels through our API with the JWT.
     authorizer: (channel) => ({

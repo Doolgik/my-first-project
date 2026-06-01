@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "prisma generate && prisma migrate deploy",
+  "buildCommand": "npx prisma generate && npx prisma migrate deploy",
   "functions": {
     "api/index.ts": {
       "memory": 512,
