@@ -1,0 +1,35 @@
+{
+  "appManager": {
+    "driver": "array",
+    "cache": { "enabled": false, "ttl": -1 },
+    "array": {
+      "apps": [
+        {
+          "id": "messenger",
+          "key": "messenger-key",
+          "secret": "messenger-secret",
+          "enabled": true,
+          "enableClientMessages": false,
+          "enableUserAuthentication": false,
+          "maxConnections": -1,
+          "maxBackpressureInBytes": -1,
+          "maxClientEventsPerSecond": -1,
+          "maxReadRequestsPerSecond": -1,
+          "maxPresenceMembersPerChannel": 100000,
+          "maxPresenceMemberSizeInKb": 100,
+          "maxChannelNameLength": 200,
+          "maxEventChannelsAtOnce": 100,
+          "maxEventNameLength": 200,
+          "maxEventPayloadInKb": 100,
+          "maxEventBatchSize": 10,
+          "webhooks": [
+            {
+              "url": "http://server:4000/api/realtime/webhook",
+              "event_types": ["member_added", "member_removed"]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
