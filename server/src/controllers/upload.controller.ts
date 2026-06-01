@@ -5,7 +5,11 @@ import { AuthRequest } from '../middleware/auth.js';
 
 export const uploadAvatar = asyncHandler(async (req: AuthRequest, res: Response) => {
   if (!req.file) throw ApiError.badRequest('No file uploaded');
-  const avatarUrl = `/uploads/${req.file.filename}`;
+
+  // Store as a data URL so the backend stays stateless (serverless-friendly).
+  const base64 = req.file.buffer.toString('base64');
+  const avatarUrl = `data:${req.file.mimetype};base64,${base64}`;
+
   const user = await prisma.user.update({
     where: { id: req.userId },
     data: { avatarUrl },

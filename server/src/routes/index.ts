@@ -6,6 +6,7 @@ import * as auth from '../controllers/auth.controller.js';
 import * as users from '../controllers/user.controller.js';
 import * as messages from '../controllers/message.controller.js';
 import * as upload from '../controllers/upload.controller.js';
+import * as realtime from '../controllers/realtime.controller.js';
 
 const router = Router();
 
@@ -35,9 +36,13 @@ router.get('/conversations', authenticate, messages.getConversations);
 router.post('/conversations', authenticate, messages.startConversation);
 router.get('/conversations/:conversationId/messages', authenticate, messages.getMessages);
 router.post('/conversations/:conversationId/read', authenticate, messages.markRead);
+router.post('/conversations/:conversationId/typing', authenticate, messages.postTyping);
 
 router.post('/messages', authenticate, messages.postMessage);
 router.patch('/messages/:id', authenticate, messages.editMessage);
 router.delete('/messages/:id', authenticate, messages.deleteMessage);
+
+// --- Realtime (Pusher) channel authorization ---
+router.post('/realtime/auth', authenticate, realtime.authorizeChannel);
 
 export default router;

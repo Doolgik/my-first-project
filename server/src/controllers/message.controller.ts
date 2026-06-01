@@ -11,7 +11,7 @@ import {
   userPublicSelect,
 } from './conversation.service.js';
 import { createMessage, markConversationRead } from './message.service.js';
-import { getIo, isOnline, userRoom } from '../socket/registry.js';
+import { triggerToUsers } from '../lib/realtime.js';
 
 export const getConversations = asyncHandler(async (req: AuthRequest, res: Response) => {
   const conversations = await listConversationsForUser(req.userId!);
@@ -72,7 +72,7 @@ export const getMessages = asyncHandler(async (req: AuthRequest, res: Response) 
         editedAt: m.editedAt,
         reads: m.reads,
       })),
-    peer: peer ? { ...peer, isOnline: isOnline(peer.id) || peer.isOnline } : null,
+    peer,
   });
 });
 
@@ -105,15 +105,12 @@ export const editMessage = asyncHandler(async (req: AuthRequest, res: Response) 
   });
 
   const participants = await getParticipantIds(updated.conversationId);
-  const io = getIo();
-  for (const uid of participants) {
-    io.to(userRoom(uid)).emit('message:edited', {
-      id: updated.id,
-      conversationId: updated.conversationId,
-      content: updated.content,
-      editedAt: updated.editedAt,
-    });
-  }
+  await triggerToUsers(participants, 'message:edited', {
+    id: updated.id,
+    conversationId: updated.conversationId,
+    content: updated.content,
+    editedAt: updated.editedAt,
+  });
   res.json({ message: { id: updated.id, content: updated.content, editedAt: updated.editedAt } });
 });
 
@@ -129,13 +126,25 @@ export const deleteMessage = asyncHandler(async (req: AuthRequest, res: Response
   });
 
   const participants = await getParticipantIds(updated.conversationId);
-  const io = getIo();
-  for (const uid of participants) {
-    io.to(userRoom(uid)).emit('message:deleted', {
-      id: updated.id,
-      conversationId: updated.conversationId,
-    });
-  }
+  await triggerToUsers(participants, 'message:deleted', {
+    id: updated.id,
+    conversationId: updated.conversationId,
+  });
+  res.status(204).end();
+});
+
+export const postTyping = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { conversationId } = req.params;
+  const typing = req.body?.typing !== false;
+  const isMember = await assertParticipant(conversationId, req.userId!);
+  if (!isMember) throw ApiError.forbidden('You are not a participant of this conversation');
+
+  const participants = (await getParticipantIds(conversationId)).filter((id) => id !== req.userId);
+  await triggerToUsers(participants, typing ? 'typing:start' : 'typing:stop', {
+    conversationId,
+    userId: req.userId,
+    username: req.username,
+  });
   res.status(204).end();
 });
 

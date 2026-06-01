@@ -4,7 +4,6 @@ import { updateProfileSchema } from '../utils/validation.js';
 import { ApiError, asyncHandler } from '../utils/errors.js';
 import { AuthRequest } from '../middleware/auth.js';
 import { userPublicSelect } from './conversation.service.js';
-import { isOnline } from '../socket/registry.js';
 
 export const searchUsers = asyncHandler(async (req: AuthRequest, res: Response) => {
   const q = (req.query.q as string | undefined)?.trim() ?? '';
@@ -27,7 +26,7 @@ export const searchUsers = asyncHandler(async (req: AuthRequest, res: Response) 
     take: 20,
     orderBy: { displayName: 'asc' },
   });
-  res.json({ users: users.map((u) => ({ ...u, isOnline: isOnline(u.id) || u.isOnline })) });
+  res.json({ users });
 });
 
 export const getUser = asyncHandler(async (req: AuthRequest, res: Response) => {
@@ -36,7 +35,7 @@ export const getUser = asyncHandler(async (req: AuthRequest, res: Response) => {
     select: userPublicSelect,
   });
   if (!user) throw ApiError.notFound('User not found');
-  res.json({ user: { ...user, isOnline: isOnline(user.id) || user.isOnline } });
+  res.json({ user });
 });
 
 export const updateProfile = asyncHandler(async (req: AuthRequest, res: Response) => {

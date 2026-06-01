@@ -4,7 +4,7 @@ const ASSET_BASE = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.r
 
 export function resolveAvatar(url?: string | null): string | null {
   if (!url) return null;
-  if (url.startsWith('http')) return url;
+  if (url.startsWith('http') || url.startsWith('data:')) return url;
   return `${ASSET_BASE}${url}`;
 }
 

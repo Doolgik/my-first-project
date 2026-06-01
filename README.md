@@ -10,7 +10,7 @@ rotation, and a Socket.IO realtime layer.
 - 🔑 **JWT auth with refresh tokens** (access token in memory, refresh token in an httpOnly cookie, rotated on every refresh)
 - 🔒 **Secure password storage** with bcrypt (cost 12)
 - 💬 **Direct (1:1) conversations** with full message history in PostgreSQL
-- ⚡ **Real-time messaging** over WebSocket (Socket.IO) with optimistic UI
+- ⚡ **Real-time messaging** over the Pusher protocol (Pusher Channels / self-hosted soketi) with optimistic UI — **deployable to serverless platforms like Vercel**
 - 🟢 **Online / offline presence** + last-seen
 - ✍️ **Typing indicators**
 - ✓✓ **Read receipts**
@@ -26,11 +26,12 @@ rotation, and a Socket.IO realtime layer.
 
 | Layer    | Tech                                                            |
 |----------|-----------------------------------------------------------------|
-| Frontend | React 18, TypeScript, Vite, Tailwind CSS, Zustand, Socket.IO client |
-| Backend  | Node.js, Express, TypeScript, Socket.IO, Zod, Multer            |
+| Frontend | React 18, TypeScript, Vite, Tailwind CSS, Zustand, pusher-js    |
+| Backend  | Node.js, Express, TypeScript, Pusher (realtime), Zod, Multer    |
 | Database | PostgreSQL 16 + Prisma ORM                                      |
 | Auth     | JWT (access) + opaque refresh tokens (DB-persisted), bcrypt     |
-| Infra    | Docker, docker-compose, Nginx (client)                          |
+| Realtime | Pusher protocol — Pusher Channels in prod, soketi for self-host |
+| Infra    | Docker, docker-compose, Nginx (client), Vercel-ready            |
 
 ## Quick start (Docker — recommended)
 
@@ -48,12 +49,15 @@ Migrations run automatically on backend start.
 
 ## Local development (without Docker)
 
-You need a running PostgreSQL instance.
+You need a running PostgreSQL instance. Realtime needs a Pusher-compatible
+broker — either free [Pusher Channels](https://pusher.com) credentials, or a
+local [soketi](https://soketi.app) (`npx @soketi/soketi start`). If `PUSHER_*`
+is left unset the API still runs, just without realtime push.
 
 ```bash
 # 1. Backend
 cd server
-cp .env.example .env          # adjust DATABASE_URL / secrets
+cp .env.example .env          # set DATABASE_URL, secrets and PUSHER_* (optional)
 npm install
 npx prisma migrate dev        # create schema
 npm run prisma:seed           # optional demo data
@@ -61,8 +65,9 @@ npm run dev                   # http://localhost:4000
 
 # 2. Frontend (new terminal)
 cd client
+cp .env.example .env          # set VITE_PUSHER_* to match the broker
 npm install
-npm run dev                   # http://localhost:5173 (proxies /api + /socket.io)
+npm run dev                   # http://localhost:5173 (proxies /api)
 ```
 
 ### Demo account (after seeding)
@@ -90,14 +95,21 @@ carol@example.com / password123
 | POST   | `/api/conversations`                        | ✅   | Start/find a conversation  |
 | GET    | `/api/conversations/:id/messages`           | ✅   | Message history            |
 | POST   | `/api/conversations/:id/read`               | ✅   | Mark conversation read     |
-| POST   | `/api/messages`                             | ✅   | Send message (REST)        |
+| POST   | `/api/conversations/:id/typing`             | ✅   | Broadcast typing state     |
+| POST   | `/api/messages`                             | ✅   | Send message               |
 | PATCH  | `/api/messages/:id`                         | ✅   | Edit message               |
 | DELETE | `/api/messages/:id`                         | ✅   | Delete message             |
+| POST   | `/api/realtime/auth`                        | ✅   | Pusher channel authorization |
+| POST   | `/api/realtime/webhook`                     | 🔏   | Pusher presence webhook (signed) |
 
-### Socket.IO events
+### Realtime (Pusher) channels & events
 
-Client → server: `message:send`, `typing:start`, `typing:stop`, `message:read`
-Server → client: `message:new`, `message:edited`, `message:deleted`, `message:read`, `presence:update`, `presence:list`, `typing:start`, `typing:stop`
+- **`presence-online`** — global presence roster (who is online). Drives online/offline indicators; member add/remove updates persisted status via a signed webhook.
+- **`private-user-{userId}`** — each user's private channel. The server pushes `message:new`, `message:edited`, `message:deleted`, `message:read`, `typing:start`, `typing:stop` here for every conversation the user takes part in.
+
+Clients send messages / typing / read state via the REST API; the server fans
+the resulting events out over Pusher. This keeps the backend stateless and free
+of long-lived sockets, so it runs on serverless platforms.
 
 ## Deployment
 

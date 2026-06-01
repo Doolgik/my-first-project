@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useChat } from '../store/chat';
 import { useAuth } from '../store/auth';
-import { getSocket } from '../lib/socket';
 import { api } from '../lib/api';
 import Avatar from './Avatar';
 import MessageBubble from './MessageBubble';
@@ -27,10 +26,7 @@ export default function ChatWindow({ conversationId, onBack }: Props) {
   const typingUsers = (typing[conversationId] ?? []).filter((u) => u !== user.username);
 
   useEffect(() => {
-    loadMessages(conversationId).then(() => {
-      const socket = getSocket();
-      socket?.emit('message:read', { conversationId });
-    });
+    loadMessages(conversationId);
     api.post(`/conversations/${conversationId}/read`).catch(() => {});
   }, [conversationId, loadMessages]);
 
@@ -41,22 +37,21 @@ export default function ChatWindow({ conversationId, onBack }: Props) {
   const stopTyping = () => {
     if (isTyping.current) {
       isTyping.current = false;
-      getSocket()?.emit('typing:stop', { conversationId });
+      api.post(`/conversations/${conversationId}/typing`, { typing: false }).catch(() => {});
     }
   };
 
   const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
-    const socket = getSocket();
     if (!isTyping.current) {
       isTyping.current = true;
-      socket?.emit('typing:start', { conversationId });
+      api.post(`/conversations/${conversationId}/typing`, { typing: true }).catch(() => {});
     }
     if (typingTimeout.current) clearTimeout(typingTimeout.current);
     typingTimeout.current = setTimeout(stopTyping, 1500);
   };
 
-  const send = () => {
+  const send = async () => {
     const content = text.trim();
     if (!content) return;
     setText('');
@@ -75,10 +70,12 @@ export default function ChatWindow({ conversationId, onBack }: Props) {
     };
     upsertMessage(optimistic);
 
-    const socket = getSocket();
-    socket?.emit('message:send', { conversationId, content }, (res: { message?: Message; error?: string }) => {
-      if (res?.message) replacePending(tempId, res.message);
-    });
+    try {
+      const res = await api.post('/messages', { conversationId, content });
+      if (res.data?.message) replacePending(tempId, res.data.message);
+    } catch {
+      // Leave the optimistic message flagged as pending on failure.
+    }
   };
 
   const onEdit = (id: string, content: string) => {

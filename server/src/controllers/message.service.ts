@@ -1,5 +1,5 @@
 import { prisma } from '../lib/prisma.js';
-import { getIo, userRoom } from '../socket/registry.js';
+import { triggerToUsers } from '../lib/realtime.js';
 import { findOrCreateDirectConversation, getParticipantIds } from './conversation.service.js';
 
 export interface CreateMessageArgs {
@@ -51,12 +51,9 @@ export async function createMessage(args: CreateMessageArgs) {
     reads: [] as { userId: string; readAt: Date }[],
   };
 
-  // Broadcast to every participant's personal room.
+  // Broadcast to every participant's private channel.
   const participants = await getParticipantIds(conversationId);
-  const io = getIo();
-  for (const uid of participants) {
-    io.to(userRoom(uid)).emit('message:new', payload);
-  }
+  await triggerToUsers(participants, 'message:new', payload);
 
   return payload;
 }
@@ -82,15 +79,12 @@ export async function markConversationRead(conversationId: string, userId: strin
 
   // Notify other participants that this user read messages.
   const participants = await getParticipantIds(conversationId);
-  const io = getIo();
-  for (const uid of participants) {
-    io.to(userRoom(uid)).emit('message:read', {
-      conversationId,
-      readerId: userId,
-      messageIds: readMessageIds,
-      readAt: new Date(),
-    });
-  }
+  await triggerToUsers(participants, 'message:read', {
+    conversationId,
+    readerId: userId,
+    messageIds: readMessageIds,
+    readAt: new Date(),
+  });
 
   return { readMessageIds };
 }

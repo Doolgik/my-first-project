@@ -20,7 +20,7 @@ export const env = {
   refreshTokenTtlDays: parseInt(process.env.REFRESH_TOKEN_TTL_DAYS ?? '7', 10),
   clientOrigin: process.env.CLIENT_ORIGIN ?? 'http://localhost:5173',
   uploadDir: process.env.UPLOAD_DIR ?? 'uploads',
-  maxUploadBytes: parseInt(process.env.MAX_UPLOAD_BYTES ?? '5242880', 10), // 5MB
+  maxUploadBytes: parseInt(process.env.MAX_UPLOAD_BYTES ?? '1048576', 10), // 1MB (stored as data URL)
 } as const;
 
 export const isProd = env.nodeEnv === 'production';

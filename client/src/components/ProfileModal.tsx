@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useAuth } from '../store/auth';
 import { api, apiErrorMessage } from '../lib/api';
-import { disconnectSocket } from '../lib/socket';
+import { disconnectPusher } from '../lib/socket';
 import Avatar from './Avatar';
 
 interface Props {
@@ -53,7 +53,7 @@ export default function ProfileModal({ onClose }: Props) {
 
   const doLogout = async () => {
     await logout();
-    disconnectSocket();
+    disconnectPusher();
   };
 
   return (

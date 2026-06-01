@@ -1,5 +1,4 @@
 import { prisma } from '../lib/prisma.js';
-import { isOnline } from '../socket/registry.js';
 
 const userPublicSelect = {
   id: true,
@@ -78,7 +77,7 @@ export async function listConversationsForUser(userId: string) {
         : null;
       return {
         id: c.id,
-        peer: other ? { ...other, isOnline: isOnline(other.id) || other.isOnline } : null,
+        peer: other,
         lastMessage,
         unreadCount,
         updatedAt: c.updatedAt,

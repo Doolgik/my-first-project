@@ -12,7 +12,8 @@
     "prisma:migrate": "prisma migrate deploy",
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:seed": "tsx prisma/seed.ts",
-    "db:setup": "prisma migrate deploy && prisma generate"
+    "db:setup": "prisma migrate deploy && prisma generate",
+    "postinstall": "prisma generate"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -29,7 +30,7 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "multer": "^2.1.1",
-    "socket.io": "^4.8.1",
+    "pusher": "^5.3.3",
     "zod": "^3.24.1"
   },
   "devDependencies": {

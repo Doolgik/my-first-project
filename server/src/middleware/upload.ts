@@ -1,28 +1,16 @@
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import crypto from 'crypto';
-import { env } from '../config/env.js';
 import { ApiError } from '../utils/errors.js';
-
-const uploadDir = path.resolve(process.cwd(), env.uploadDir);
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadDir),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const name = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}${ext}`;
-    cb(null, name);
-  },
-});
+import { env } from '../config/env.js';
 
 const ALLOWED = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
+/**
+ * Avatars are kept in memory and persisted as data URLs (see upload controller).
+ * This keeps the backend stateless so it can run on serverless platforms like
+ * Vercel where the local filesystem is ephemeral.
+ */
 export const avatarUpload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: env.maxUploadBytes },
   fileFilter: (_req, file, cb) => {
     if (!ALLOWED.includes(file.mimetype)) {
