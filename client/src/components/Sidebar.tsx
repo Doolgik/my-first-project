@@ -51,9 +51,9 @@ export default function Sidebar({ onSelect, onOpenProfile, onOpenSettings, onNew
   }, [query]);
 
   return (
-    <div className="flex h-full flex-col bg-slate-900">
+    <div className="flex h-full flex-col bg-slate-950/30 backdrop-blur-2xl">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-slate-800 px-4 py-3 pt-safe">
+      <div className="flex items-center gap-3 border-b border-white/5 px-4 py-3 pt-safe">
         <button onClick={onOpenSettings} className="shrink-0 transition active:scale-95">
           <Avatar name={user?.displayName ?? '?'} src={user?.avatarUrl} size={40} />
         </button>
@@ -62,27 +62,27 @@ export default function Sidebar({ onSelect, onOpenProfile, onOpenSettings, onNew
           <p className="truncate text-xs text-slate-500">@{user?.username}</p>
         </div>
         <div className="relative">
-          <button onClick={() => setMenuOpen((m) => !m)} className="rounded-lg p-2 text-slate-300 transition hover:bg-slate-800" aria-label="New">
+          <button onClick={() => setMenuOpen((m) => !m)} className="rounded-lg p-2 text-slate-300 transition hover:bg-white/[0.06]" aria-label="New">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" /></svg>
           </button>
           {menuOpen && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-              <div className="absolute right-0 z-20 mt-1 w-44 overflow-hidden rounded-xl border border-slate-700 bg-slate-800 shadow-xl animate-fade-in">
-                <button onClick={() => { setMenuOpen(false); setTab('chats'); setQuery(''); document.getElementById('sb-search')?.focus(); }} className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-slate-200 hover:bg-slate-700">
+              <div className="absolute right-0 z-20 mt-1 w-48 overflow-hidden rounded-2xl glass-card shadow-2xl animate-fade-in">
+                <button onClick={() => { setMenuOpen(false); setTab('chats'); setQuery(''); document.getElementById('sb-search')?.focus(); }} className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-slate-200 hover:bg-white/10">
                   <span>🔍</span> New chat
                 </button>
-                <button onClick={() => { setMenuOpen(false); onNewGroup('GROUP'); }} className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-slate-200 hover:bg-slate-700">
+                <button onClick={() => { setMenuOpen(false); onNewGroup('GROUP'); }} className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-slate-200 hover:bg-white/10">
                   <span>👥</span> New group
                 </button>
-                <button onClick={() => { setMenuOpen(false); onNewGroup('CHANNEL'); }} className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-slate-200 hover:bg-slate-700">
+                <button onClick={() => { setMenuOpen(false); onNewGroup('CHANNEL'); }} className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-slate-200 hover:bg-white/10">
                   <span>📢</span> New channel
                 </button>
               </div>
             </>
           )}
         </div>
-        <button onClick={onOpenSettings} className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white" aria-label="Settings">
+        <button onClick={onOpenSettings} className="rounded-lg p-2 text-slate-400 transition hover:bg-white/[0.06] hover:text-white" aria-label="Settings">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
         </button>
       </div>
@@ -91,7 +91,7 @@ export default function Sidebar({ onSelect, onOpenProfile, onOpenSettings, onNew
       <div className="px-3 py-2">
         <div className="relative">
           <svg className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
-          <input id="sb-search" className="w-full rounded-xl bg-slate-800 py-2.5 pl-9 pr-3 text-sm text-slate-100 placeholder-slate-500 outline-none focus:ring-2 focus:ring-brand-500/40" placeholder="Search people…" value={query} autoCapitalize="none" onChange={(e) => setQuery(e.target.value)} />
+          <input id="sb-search" className="w-full rounded-2xl bg-white/[0.06] border border-white/10 py-2.5 pl-9 pr-3 text-sm text-slate-100 placeholder-slate-500 outline-none focus:ring-2 focus:ring-brand-500/40" placeholder="Search people…" value={query} autoCapitalize="none" onChange={(e) => setQuery(e.target.value)} />
         </div>
       </div>
 
@@ -99,7 +99,7 @@ export default function Sidebar({ onSelect, onOpenProfile, onOpenSettings, onNew
       {!query.trim() && (
         <div className="flex gap-1 px-3 pb-1">
           {(['chats', 'contacts'] as Tab[]).map((t) => (
-            <button key={t} onClick={() => setTab(t)} className={`flex-1 rounded-lg py-1.5 text-sm font-medium capitalize transition ${tab === t ? 'bg-slate-800 text-white' : 'text-slate-500 hover:text-slate-300'}`}>
+            <button key={t} onClick={() => setTab(t)} className={`flex-1 rounded-lg py-1.5 text-sm font-medium capitalize transition ${tab === t ? 'bg-white/10 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}>
               {t}
             </button>
           ))}
@@ -112,7 +112,7 @@ export default function Sidebar({ onSelect, onOpenProfile, onOpenSettings, onNew
           <div>
             <p className="px-4 py-1 text-xs font-medium uppercase tracking-wide text-slate-500">{searching ? 'Searching…' : results.length ? 'People' : 'No users found'}</p>
             {results.map((u) => (
-              <button key={u.id} onClick={() => onOpenProfile(u.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-slate-800">
+              <button key={u.id} onClick={() => onOpenProfile(u.id)} className="mx-2 flex items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition glass-hover">
                 <Avatar name={u.displayName} src={u.avatarUrl} size={44} showStatus online={onlineUsers.has(u.id) || u.isOnline} />
                 <div className="min-w-0"><p className="truncate font-medium text-white">{u.displayName}</p><p className="truncate text-xs text-slate-500">@{u.username}</p></div>
               </button>
@@ -123,7 +123,7 @@ export default function Sidebar({ onSelect, onOpenProfile, onOpenSettings, onNew
             <div className="px-6 py-16 text-center text-sm text-slate-500">No contacts yet.<br />Search and open a profile to add one.</div>
           ) : (
             contacts.map((u) => (
-              <button key={u.id} onClick={() => onOpenProfile(u.id)} className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-slate-800">
+              <button key={u.id} onClick={() => onOpenProfile(u.id)} className="mx-2 flex items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition glass-hover">
                 <Avatar name={u.displayName} src={u.avatarUrl} size={46} showStatus online={onlineUsers.has(u.id) || u.isOnline} />
                 <div className="min-w-0"><p className="truncate font-medium text-white">{u.displayName}</p><p className="truncate text-xs text-slate-500">@{u.username}</p></div>
               </button>
@@ -137,7 +137,7 @@ export default function Sidebar({ onSelect, onOpenProfile, onOpenSettings, onNew
             const preview = c.lastMessage?.deleted ? 'Message deleted' : c.lastMessage?.content ?? 'No messages yet';
             const isMineLast = c.lastMessage?.senderId === user?.id;
             return (
-              <button key={c.id} onClick={() => onSelect(c.id)} className={`flex w-full items-center gap-3 px-3 py-2.5 text-left transition hover:bg-slate-800 ${activeId === c.id ? 'bg-slate-800' : ''}`}>
+              <button key={c.id} onClick={() => onSelect(c.id)} className={`mx-2 flex items-center gap-3 rounded-2xl px-2.5 py-2.5 text-left transition glass-hover ${activeId === c.id ? 'bg-white/10' : ''}`}>
                 <Avatar name={c.title} src={c.avatarUrl} size={50} kind={c.type} showStatus={c.type === 'DIRECT'} online={online} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-2">

@@ -20,9 +20,9 @@ export default function ChatLayout() {
   const activeMeta = activeId ? metas[activeId] : null;
 
   return (
-    <div className="h-dvh w-full overflow-hidden bg-slate-950 text-slate-100">
-      <div className="mx-auto flex h-full max-w-6xl md:border-x md:border-slate-800">
-        <aside className={`h-full w-full border-slate-800 md:block md:w-[340px] md:shrink-0 md:border-r ${activeId ? 'hidden md:block' : 'block'}`}>
+    <div className="app-bg h-dvh w-full overflow-hidden text-slate-100">
+      <div className="mx-auto flex h-full max-w-6xl">
+        <aside className={`h-full w-full md:block md:w-[360px] md:shrink-0 md:border-r md:border-white/5 ${activeId ? 'hidden md:block' : 'block'}`}>
           <Sidebar
             onSelect={setActive}
             onOpenProfile={setProfileUserId}
@@ -42,10 +42,10 @@ export default function ChatLayout() {
               />
             </div>
           ) : (
-            <div className="hidden h-full flex-col items-center justify-center text-center md:flex">
-              <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-slate-800 text-4xl">💬</div>
-              <h2 className="text-xl font-semibold text-white">Pulse Messenger</h2>
-              <p className="mt-1 max-w-xs text-sm text-slate-500">Select a conversation, start a chat, or create a group to begin.</p>
+            <div className="chat-wallpaper hidden h-full flex-col items-center justify-center text-center md:flex">
+              <div className="glass mb-5 flex h-24 w-24 items-center justify-center rounded-[1.75rem] text-5xl shadow-2xl">💬</div>
+              <h2 className="text-2xl font-bold tracking-tight text-white">Pulse Messenger</h2>
+              <p className="mt-2 max-w-xs text-sm text-slate-400">Select a conversation, start a chat, or create a group to begin.</p>
             </div>
           )}
         </main>

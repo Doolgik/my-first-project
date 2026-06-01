@@ -41,12 +41,17 @@ interface CallsState {
 let pc: RTCPeerConnection | null = null;
 let pendingCandidates: RTCIceCandidateInit[] = [];
 let pendingOffer: RTCSessionDescriptionInit | null = null;
+let ringTimeout: ReturnType<typeof setTimeout> | null = null;
 
 function send(toUserId: string, type: string, callId: string, extra: Record<string, unknown> = {}) {
   api.post('/calls/signal', { toUserId, type, callId, ...extra }).catch(() => {});
 }
 
 function teardown() {
+  if (ringTimeout) {
+    clearTimeout(ringTimeout);
+    ringTimeout = null;
+  }
   if (pc) {
     pc.onicecandidate = null;
     pc.ontrack = null;
@@ -69,7 +74,10 @@ export const useCalls = create<CallsState>((set, get) => {
       set({ remoteStream: stream });
     };
     conn.onconnectionstatechange = () => {
-      if (conn.connectionState === 'connected') set({ state: 'active' });
+      if (conn.connectionState === 'connected') {
+        if (ringTimeout) { clearTimeout(ringTimeout); ringTimeout = null; }
+        set({ state: 'active' });
+      }
       if (['failed', 'disconnected', 'closed'].includes(conn.connectionState)) {
         if (get().state === 'active') get().endCall(true);
       }
@@ -78,6 +86,9 @@ export const useCalls = create<CallsState>((set, get) => {
   }
 
   async function getMedia(media: CallMedia) {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      throw new Error('Media devices unavailable (needs HTTPS and a mic/camera)');
+    }
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: true,
       video: media === 'video' ? { width: 1280, height: 720 } : false,
@@ -109,8 +120,12 @@ export const useCalls = create<CallsState>((set, get) => {
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
         send(peer.id, 'offer', callId, { media, payload: offer });
+        // Auto-cancel if the callee doesn't pick up.
+        ringTimeout = setTimeout(() => {
+          if (get().state === 'outgoing') get().endCall(true);
+        }, 35000);
       } catch (err) {
-        set({ error: 'Could not access microphone/camera', state: 'idle' });
+        set({ error: (err as Error)?.message ?? 'Could not access microphone/camera', state: 'idle' });
         teardown();
       }
     },

@@ -103,10 +103,10 @@ export default function ChatWindow({ conversationId, onBack, onOpenProfile, onOp
   };
 
   return (
-    <div className="flex h-full flex-col bg-slate-950">
+    <div className="chat-wallpaper flex h-full flex-col">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-slate-800 bg-slate-900 px-3 py-2.5 pt-safe">
-        <button onClick={onBack} className="rounded-lg p-1.5 text-slate-300 transition hover:bg-slate-800 md:hidden" aria-label="Back">
+      <div className="flex items-center gap-3 border-b border-white/5 bg-slate-950/40 backdrop-blur-2xl px-3 py-2.5 pt-safe">
+        <button onClick={onBack} className="rounded-lg p-1.5 text-slate-300 transition hover:bg-white/[0.06] md:hidden" aria-label="Back">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg>
         </button>
         <button onClick={openHeader} className="flex min-w-0 flex-1 items-center gap-3 text-left">
@@ -118,10 +118,10 @@ export default function ChatWindow({ conversationId, onBack, onOpenProfile, onOp
         </button>
         {!isGroup && peer && (
           <>
-            <button onClick={() => startCall(peer, 'audio')} className="rounded-lg p-2 text-emerald-400 transition hover:bg-slate-800" aria-label="Call">
+            <button onClick={() => startCall(peer, 'audio')} className="rounded-lg p-2 text-emerald-400 transition hover:bg-white/[0.06]" aria-label="Call">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.81.36 1.6.7 2.34a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.74-1.27a2 2 0 0 1 2.11-.45c.74.34 1.53.57 2.34.7A2 2 0 0 1 22 16.92z" /></svg>
             </button>
-            <button onClick={() => startCall(peer, 'video')} className="rounded-lg p-2 text-sky-400 transition hover:bg-slate-800" aria-label="Video call">
+            <button onClick={() => startCall(peer, 'video')} className="rounded-lg p-2 text-sky-400 transition hover:bg-white/[0.06]" aria-label="Video call">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m23 7-7 5 7 5V7z" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>
             </button>
           </>
@@ -148,7 +148,7 @@ export default function ChatWindow({ conversationId, onBack, onOpenProfile, onOp
         })}
         {typingUsers.length > 0 && (
           <div className="flex justify-start">
-            <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-slate-800 px-4 py-3">
+            <div className="flex items-center gap-1 rounded-2xl rounded-bl-md glass px-4 py-3">
               <span className="typing-dot h-1.5 w-1.5 rounded-full bg-slate-400" />
               <span className="typing-dot h-1.5 w-1.5 rounded-full bg-slate-400" />
               <span className="typing-dot h-1.5 w-1.5 rounded-full bg-slate-400" />
@@ -159,10 +159,10 @@ export default function ChatWindow({ conversationId, onBack, onOpenProfile, onOp
 
       {/* Composer */}
       {canPost ? (
-        <div className="border-t border-slate-800 bg-slate-900 px-3 py-2 pb-safe">
+        <div className="border-t border-white/5 bg-slate-950/40 backdrop-blur-2xl px-3 py-2 pb-safe">
           <div className="flex items-end gap-2">
             <textarea
-              className="scroll-thin max-h-32 flex-1 resize-none rounded-2xl bg-slate-800 px-4 py-2.5 text-[15px] text-slate-100 placeholder-slate-500 outline-none focus:ring-2 focus:ring-brand-500/40"
+              className="scroll-thin max-h-32 flex-1 resize-none rounded-2xl bg-white/[0.06] border border-white/10 px-4 py-2.5 text-[15px] text-slate-100 placeholder-slate-500 outline-none focus:ring-2 focus:ring-brand-500/40"
               placeholder="Message…"
               rows={1}
               value={text}
@@ -170,13 +170,13 @@ export default function ChatWindow({ conversationId, onBack, onOpenProfile, onOp
               onKeyDown={onKeyDown}
               onBlur={stopTyping}
             />
-            <button onClick={send} disabled={!text.trim()} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-600 text-white transition hover:bg-brand-500 active:scale-95 disabled:opacity-40" aria-label="Send">
+            <button onClick={send} disabled={!text.trim()} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white transition active:scale-95 disabled:opacity-40 shadow-lg shadow-brand-600/30 bg-gradient-to-br from-brand-500 to-violet-600 hover:brightness-110" aria-label="Send">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
             </button>
           </div>
         </div>
       ) : (
-        <div className="border-t border-slate-800 bg-slate-900 px-4 py-4 pb-safe text-center text-sm text-slate-500">
+        <div className="border-t border-white/5 bg-slate-950/40 backdrop-blur-2xl px-4 py-4 pb-safe text-center text-sm text-slate-500">
           📢 Only admins can post in this channel
         </div>
       )}

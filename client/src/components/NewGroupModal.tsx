@@ -51,17 +51,17 @@ export default function NewGroupModal({ initialType, onClose, onCreated }: Props
   };
 
   return (
-    <div className="fixed inset-0 z-30 flex items-end justify-center bg-black/60 sm:items-center" onClick={onClose}>
-      <div className="flex max-h-[88vh] w-full max-w-md animate-fade-in flex-col rounded-t-2xl bg-slate-900 shadow-2xl sm:rounded-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between border-b border-slate-800 px-5 py-4">
+    <div className="fixed inset-0 z-30 flex items-end justify-center bg-black/50 backdrop-blur-md sm:items-center" onClick={onClose}>
+      <div className="flex max-h-[88vh] w-full max-w-md animate-fade-in flex-col rounded-t-3xl glass-card shadow-2xl sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between border-b border-white/8 px-5 py-4">
           <h2 className="text-lg font-semibold text-white">New {type === 'CHANNEL' ? 'channel' : 'group'}</h2>
-          <button onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800" aria-label="Close">
+          <button onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-white/[0.06]" aria-label="Close">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
           </button>
         </div>
 
         <div className="space-y-3 overflow-y-auto p-5 scroll-thin">
-          <div className="flex gap-2 rounded-xl bg-slate-800 p-1">
+          <div className="flex gap-2 rounded-2xl bg-white/[0.06] p-1">
             {(['GROUP', 'CHANNEL'] as const).map((t) => (
               <button
                 key={t}
@@ -96,7 +96,7 @@ export default function NewGroupModal({ initialType, onClose, onCreated }: Props
             {pool.map((u) => {
               const on = selected.some((x) => x.id === u.id);
               return (
-                <button key={u.id} onClick={() => toggle(u)} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition hover:bg-slate-800">
+                <button key={u.id} onClick={() => toggle(u)} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition hover:bg-white/[0.06]">
                   <Avatar name={u.displayName} src={u.avatarUrl} size={40} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-white">{u.displayName}</p>
@@ -111,7 +111,7 @@ export default function NewGroupModal({ initialType, onClose, onCreated }: Props
           </div>
         </div>
 
-        <div className="border-t border-slate-800 p-4 pb-safe">
+        <div className="border-t border-white/8 p-4 pb-safe">
           <button className="btn-primary w-full" disabled={!title.trim() || creating} onClick={create}>
             {creating ? 'Creating…' : `Create ${type === 'CHANNEL' ? 'channel' : 'group'}`}
           </button>

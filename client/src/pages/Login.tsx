@@ -26,10 +26,10 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 px-4">
-      <div className="w-full max-w-sm animate-fade-in">
+    <div className="app-bg flex min-h-dvh items-center justify-center px-4">
+      <div className="w-full max-w-sm animate-fade-in glass-card rounded-[1.75rem] p-7">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-600 text-3xl shadow-lg shadow-brand-600/30">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-violet-600 text-3xl shadow-lg shadow-brand-600/40">
             💬
           </div>
           <h1 className="text-2xl font-bold text-white">Welcome back</h1>
@@ -68,7 +68,7 @@ export default function Login() {
           </Link>
         </p>
 
-        <div className="mt-6 rounded-xl border border-slate-800 bg-slate-900/60 p-3 text-center text-xs text-slate-500">
+        <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-center text-xs text-slate-500">
           Demo: <span className="text-slate-300">alice@example.com</span> / <span className="text-slate-300">password123</span>
         </div>
       </div>

@@ -63,11 +63,11 @@ export default function GroupInfoModal({ meta, onClose, onLeft, onOpenProfile }:
   };
 
   return (
-    <div className="fixed inset-0 z-30 flex items-end justify-center bg-black/60 sm:items-center" onClick={onClose}>
-      <div className="flex max-h-[88vh] w-full max-w-md animate-fade-in flex-col rounded-t-2xl bg-slate-900 shadow-2xl sm:rounded-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between border-b border-slate-800 px-5 py-4">
+    <div className="fixed inset-0 z-30 flex items-end justify-center bg-black/50 backdrop-blur-md sm:items-center" onClick={onClose}>
+      <div className="flex max-h-[88vh] w-full max-w-md animate-fade-in flex-col rounded-t-3xl glass-card shadow-2xl sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between border-b border-white/8 px-5 py-4">
           <h2 className="text-lg font-semibold text-white">{meta.type === 'CHANNEL' ? 'Channel' : 'Group'} info</h2>
-          <button onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800" aria-label="Close">
+          <button onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-white/[0.06]" aria-label="Close">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
           </button>
         </div>
@@ -100,7 +100,7 @@ export default function GroupInfoModal({ meta, onClose, onLeft, onOpenProfile }:
                   <input className="input" placeholder="Search people…" value={query} autoFocus autoCapitalize="none" onChange={(e) => setQuery(e.target.value)} />
                   <div className="mt-2 space-y-1">
                     {results.map((u) => (
-                      <button key={u.id} onClick={() => addMember(u)} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-slate-800">
+                      <button key={u.id} onClick={() => addMember(u)} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-white/[0.06]">
                         <Avatar name={u.displayName} src={u.avatarUrl} size={36} />
                         <span className="text-sm text-white">{u.displayName}</span>
                       </button>
@@ -108,7 +108,7 @@ export default function GroupInfoModal({ meta, onClose, onLeft, onOpenProfile }:
                   </div>
                 </div>
               ) : (
-                <button onClick={() => setAdding(true)} className="flex w-full items-center gap-2 rounded-xl bg-slate-800 px-4 py-3 text-brand-400 transition hover:bg-slate-700">
+                <button onClick={() => setAdding(true)} className="flex w-full items-center gap-2 rounded-2xl bg-white/[0.06] px-4 py-3 text-brand-400 transition hover:bg-white/10">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></svg>
                   Add members
                 </button>
@@ -118,7 +118,7 @@ export default function GroupInfoModal({ meta, onClose, onLeft, onOpenProfile }:
 
           <div className="space-y-1">
             {list.map((m) => (
-              <div key={m.id} className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-slate-800">
+              <div key={m.id} className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-white/[0.06]">
                 <button onClick={() => m.id !== me.id && onOpenProfile(m.id)}>
                   <Avatar name={m.displayName} src={m.avatarUrl} size={42} showStatus online={onlineUsers.has(m.id) || m.isOnline} />
                 </button>
@@ -139,7 +139,7 @@ export default function GroupInfoModal({ meta, onClose, onLeft, onOpenProfile }:
           </div>
         </div>
 
-        <div className="border-t border-slate-800 p-4 pb-safe">
+        <div className="border-t border-white/8 p-4 pb-safe">
           <button onClick={leave} className="w-full rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 font-semibold text-red-400 transition hover:bg-red-500/20">
             Leave {meta.type === 'CHANNEL' ? 'channel' : 'group'}
           </button>

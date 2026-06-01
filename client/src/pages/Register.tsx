@@ -28,10 +28,10 @@ export default function Register() {
   };
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 px-4 py-8">
-      <div className="w-full max-w-sm animate-fade-in">
+    <div className="app-bg flex min-h-dvh items-center justify-center px-4 py-8">
+      <div className="w-full max-w-sm animate-fade-in glass-card rounded-[1.75rem] p-7">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-600 text-3xl shadow-lg shadow-brand-600/30">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-violet-600 text-3xl shadow-lg shadow-brand-600/40">
             💬
           </div>
           <h1 className="text-2xl font-bold text-white">Create your account</h1>

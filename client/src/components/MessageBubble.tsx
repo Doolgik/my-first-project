@@ -23,7 +23,7 @@ export default function MessageBubble({ message, mine, peerId, showSender, onEdi
   if (message.deleted) {
     return (
       <div className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
-        <div className="max-w-[78%] rounded-2xl bg-slate-800/50 px-4 py-2 text-sm italic text-slate-500">
+        <div className="max-w-[78%] rounded-2xl glass px-4 py-2 text-sm italic text-slate-400">
           This message was deleted
         </div>
       </div>
@@ -40,9 +40,9 @@ export default function MessageBubble({ message, mine, peerId, showSender, onEdi
     <div className={`group flex ${mine ? 'justify-end' : 'justify-start'}`}>
       <div className="relative max-w-[78%] sm:max-w-[65%]">
         {editing ? (
-          <div className="rounded-2xl bg-slate-800 p-2">
+          <div className="rounded-2xl glass-card p-2">
             <textarea
-              className="w-full resize-none rounded-lg bg-slate-900 p-2 text-sm text-slate-100 outline-none"
+              className="w-full resize-none rounded-xl bg-white/5 border border-white/10 p-2 text-sm text-slate-100 outline-none"
               value={draft}
               rows={2}
               onChange={(e) => setDraft(e.target.value)}
@@ -52,7 +52,7 @@ export default function MessageBubble({ message, mine, peerId, showSender, onEdi
               <button onClick={() => setEditing(false)} className="px-2 py-1 text-slate-400">
                 Cancel
               </button>
-              <button onClick={saveEdit} className="rounded-md bg-brand-600 px-2 py-1 font-medium text-white">
+              <button onClick={saveEdit} className="rounded-lg bg-brand-600 px-2.5 py-1 font-medium text-white">
                 Save
               </button>
             </div>
@@ -62,8 +62,8 @@ export default function MessageBubble({ message, mine, peerId, showSender, onEdi
             onClick={() => mine && setMenu((m) => !m)}
             className={`whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2 text-[15px] leading-snug shadow-sm ${
               mine
-                ? 'rounded-br-md bg-brand-600 text-white'
-                : 'rounded-bl-md bg-slate-800 text-slate-100'
+                ? 'rounded-br-md bg-gradient-to-br from-brand-500 to-violet-600 text-white shadow-lg shadow-brand-600/20'
+                : 'rounded-bl-md glass text-slate-100'
             } ${mine ? 'cursor-pointer' : ''}`}
           >
             {showSender && message.sender && (
@@ -85,9 +85,9 @@ export default function MessageBubble({ message, mine, peerId, showSender, onEdi
         )}
 
         {menu && mine && !editing && (
-          <div className="absolute right-0 top-full z-10 mt-1 w-32 overflow-hidden rounded-xl border border-slate-700 bg-slate-800 text-sm shadow-xl animate-fade-in">
+          <div className="absolute right-0 top-full z-10 mt-1 w-32 overflow-hidden rounded-2xl glass-card text-sm shadow-2xl animate-pop">
             <button
-              className="block w-full px-4 py-2 text-left text-slate-200 hover:bg-slate-700"
+              className="block w-full px-4 py-2 text-left text-slate-200 hover:bg-white/10"
               onClick={() => {
                 setEditing(true);
                 setMenu(false);
@@ -96,7 +96,7 @@ export default function MessageBubble({ message, mine, peerId, showSender, onEdi
               Edit
             </button>
             <button
-              className="block w-full px-4 py-2 text-left text-red-400 hover:bg-slate-700"
+              className="block w-full px-4 py-2 text-left text-red-400 hover:bg-white/10"
               onClick={() => {
                 onDelete(message.id);
                 setMenu(false);
