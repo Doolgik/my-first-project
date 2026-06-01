@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 import { Prisma } from '@prisma/client';
+import { MulterError } from 'multer';
 import { ApiError } from '../utils/errors.js';
 
 export function notFoundHandler(_req: Request, res: Response) {
@@ -18,6 +19,14 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
 
   if (err instanceof ApiError) {
     return res.status(err.status).json({ error: err.message, details: err.details });
+  }
+
+  if (err instanceof MulterError) {
+    const message =
+      err.code === 'LIMIT_FILE_SIZE'
+        ? 'Image is too large (max 4MB)'
+        : `Upload error: ${err.message}`;
+    return res.status(400).json({ error: message });
   }
 
   if (err instanceof Prisma.PrismaClientKnownRequestError) {

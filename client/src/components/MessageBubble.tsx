@@ -2,15 +2,18 @@ import { useState } from 'react';
 import type { Message } from '../types';
 import { formatTime } from '../lib/utils';
 
+import { avatarColor } from '../lib/utils';
+
 interface Props {
   message: Message;
   mine: boolean;
   peerId?: string;
+  showSender?: boolean;
   onEdit: (id: string, content: string) => void;
   onDelete: (id: string) => void;
 }
 
-export default function MessageBubble({ message, mine, peerId, onEdit, onDelete }: Props) {
+export default function MessageBubble({ message, mine, peerId, showSender, onEdit, onDelete }: Props) {
   const [menu, setMenu] = useState(false);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(message.content ?? '');
@@ -63,6 +66,11 @@ export default function MessageBubble({ message, mine, peerId, onEdit, onDelete 
                 : 'rounded-bl-md bg-slate-800 text-slate-100'
             } ${mine ? 'cursor-pointer' : ''}`}
           >
+            {showSender && message.sender && (
+              <span className="mb-0.5 block text-xs font-semibold" style={{ color: avatarColor(message.sender.displayName) }}>
+                {message.sender.displayName}
+              </span>
+            )}
             {message.content}
             <span className={`ml-2 inline-flex translate-y-[2px] items-center gap-1 text-[10px] ${mine ? 'text-indigo-200' : 'text-slate-400'}`}>
               {message.editedAt && <span className="italic">edited</span>}

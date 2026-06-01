@@ -3,11 +3,14 @@ import { prisma } from '../lib/prisma.js';
 import { sendMessageSchema, editMessageSchema } from '../utils/validation.js';
 import { ApiError, asyncHandler } from '../utils/errors.js';
 import { AuthRequest } from '../middleware/auth.js';
+import { ConversationType, ParticipantRole } from '@prisma/client';
 import {
   listConversationsForUser,
   assertParticipant,
   findOrCreateDirectConversation,
   getParticipantIds,
+  getParticipantRole,
+  getConversation,
   userPublicSelect,
 } from './conversation.service.js';
 import { createMessage, markConversationRead } from './message.service.js';
@@ -51,12 +54,14 @@ export const getMessages = asyncHandler(async (req: AuthRequest, res: Response) 
     take: limit,
   });
 
-  // Other participant info for the conversation header.
+  const convo = await getConversation(conversationId);
   const participants = await prisma.conversationParticipant.findMany({
     where: { conversationId },
     include: { user: { select: userPublicSelect } },
   });
-  const peer = participants.find((p) => p.userId !== req.userId)?.user ?? null;
+  const isDirect = convo?.type === ConversationType.DIRECT;
+  const peer = isDirect ? participants.find((p) => p.userId !== req.userId)?.user ?? null : null;
+  const myRole = participants.find((p) => p.userId === req.userId)?.role ?? ParticipantRole.MEMBER;
 
   res.json({
     messages: messages
@@ -73,6 +78,18 @@ export const getMessages = asyncHandler(async (req: AuthRequest, res: Response) 
         reads: m.reads,
       })),
     peer,
+    conversation: convo
+      ? {
+          id: convo.id,
+          type: convo.type,
+          title: isDirect ? peer?.displayName ?? 'Unknown' : convo.title,
+          description: convo.description,
+          avatarUrl: isDirect ? peer?.avatarUrl ?? null : convo.avatarUrl,
+          ownerId: convo.ownerId,
+          memberCount: participants.length,
+          myRole,
+        }
+      : null,
   });
 });
 
@@ -81,6 +98,14 @@ export const postMessage = asyncHandler(async (req: AuthRequest, res: Response) 
   if (data.conversationId) {
     const isMember = await assertParticipant(data.conversationId, req.userId!);
     if (!isMember) throw ApiError.forbidden('You are not a participant of this conversation');
+    // In channels, only owners/admins may post.
+    const convo = await getConversation(data.conversationId);
+    if (convo?.type === ConversationType.CHANNEL) {
+      const role = await getParticipantRole(data.conversationId, req.userId!);
+      if (role !== ParticipantRole.OWNER && role !== ParticipantRole.ADMIN) {
+        throw ApiError.forbidden('Only admins can post in this channel');
+      }
+    }
   }
   const message = await createMessage({
     senderId: req.userId!,

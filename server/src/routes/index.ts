@@ -7,6 +7,9 @@ import * as users from '../controllers/user.controller.js';
 import * as messages from '../controllers/message.controller.js';
 import * as upload from '../controllers/upload.controller.js';
 import * as realtime from '../controllers/realtime.controller.js';
+import * as groups from '../controllers/group.controller.js';
+import * as contacts from '../controllers/contact.controller.js';
+import * as calls from '../controllers/call.controller.js';
 
 const router = Router();
 
@@ -34,13 +37,27 @@ router.post('/users/me/avatar', authenticate, avatarUpload, upload.uploadAvatar)
 // --- Conversations & messages ---
 router.get('/conversations', authenticate, messages.getConversations);
 router.post('/conversations', authenticate, messages.startConversation);
+router.post('/conversations/group', authenticate, groups.createGroup);
 router.get('/conversations/:conversationId/messages', authenticate, messages.getMessages);
 router.post('/conversations/:conversationId/read', authenticate, messages.markRead);
 router.post('/conversations/:conversationId/typing', authenticate, messages.postTyping);
+router.patch('/conversations/:conversationId', authenticate, groups.updateConversation);
+router.get('/conversations/:conversationId/members', authenticate, groups.getMembers);
+router.post('/conversations/:conversationId/members', authenticate, groups.addMember);
+router.delete('/conversations/:conversationId/members/:userId', authenticate, groups.removeMember);
+router.post('/conversations/:conversationId/members/:userId/role', authenticate, groups.promoteMember);
 
 router.post('/messages', authenticate, messages.postMessage);
 router.patch('/messages/:id', authenticate, messages.editMessage);
 router.delete('/messages/:id', authenticate, messages.deleteMessage);
+
+// --- Contacts ---
+router.get('/contacts', authenticate, contacts.listContacts);
+router.post('/contacts', authenticate, contacts.addContact);
+router.delete('/contacts/:contactId', authenticate, contacts.removeContact);
+
+// --- Calls (WebRTC signaling relay) ---
+router.post('/calls/signal', authenticate, calls.sendSignal);
 
 // --- Realtime (Pusher) channel authorization ---
 router.post('/realtime/auth', authenticate, realtime.authorizeChannel);

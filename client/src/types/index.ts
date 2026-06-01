@@ -1,3 +1,6 @@
+export type ConversationType = 'DIRECT' | 'GROUP' | 'CHANNEL';
+export type ParticipantRole = 'OWNER' | 'ADMIN' | 'MEMBER';
+
 export interface User {
   id: string;
   username: string;
@@ -7,6 +10,11 @@ export interface User {
   avatarUrl?: string | null;
   isOnline?: boolean;
   lastSeen?: string;
+}
+
+export interface Member extends User {
+  role: ParticipantRole;
+  joinedAt?: string;
 }
 
 export interface MessageRead {
@@ -27,9 +35,25 @@ export interface Message {
   pending?: boolean;
 }
 
+export interface ConversationMeta {
+  id: string;
+  type: ConversationType;
+  title: string;
+  description?: string | null;
+  avatarUrl?: string | null;
+  ownerId?: string | null;
+  memberCount?: number;
+  myRole?: ParticipantRole;
+}
+
 export interface Conversation {
   id: string;
+  type: ConversationType;
+  title: string;
+  avatarUrl?: string | null;
   peer: User | null;
+  memberCount?: number;
+  myRole?: ParticipantRole;
   lastMessage: {
     id: string;
     content: string | null;
@@ -39,4 +63,15 @@ export interface Conversation {
   } | null;
   unreadCount: number;
   updatedAt: string;
+}
+
+export type CallMedia = 'audio' | 'video';
+export type CallState = 'idle' | 'outgoing' | 'incoming' | 'connecting' | 'active' | 'ended';
+
+export interface ActiveCall {
+  callId: string;
+  peer: User;
+  media: CallMedia;
+  state: CallState;
+  isCaller: boolean;
 }

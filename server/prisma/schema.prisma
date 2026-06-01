@@ -10,6 +10,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ConversationType {
+  DIRECT
+  GROUP
+  CHANNEL
+}
+
+enum ParticipantRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
 model User {
   id           String   @id @default(uuid())
   username     String   @unique
@@ -27,9 +39,24 @@ model User {
   participants  ConversationParticipant[]
   messages      Message[]
   reads         MessageRead[]
+  contacts      Contact[]                 @relation("ContactOwner")
+  contactOf     Contact[]                 @relation("ContactTarget")
 
   @@index([username])
   @@index([displayName])
+}
+
+model Contact {
+  id        String   @id @default(uuid())
+  ownerId   String
+  contactId String
+  createdAt DateTime @default(now())
+
+  owner   User @relation("ContactOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  contact User @relation("ContactTarget", fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@unique([ownerId, contactId])
+  @@index([ownerId])
 }
 
 model RefreshToken {
@@ -44,19 +71,25 @@ model RefreshToken {
 }
 
 model Conversation {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String           @id @default(uuid())
+  type        ConversationType @default(DIRECT)
+  title       String?
+  description String?
+  avatarUrl   String?
+  ownerId     String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
   participants ConversationParticipant[]
   messages     Message[]
 }
 
 model ConversationParticipant {
-  id             String   @id @default(uuid())
+  id             String          @id @default(uuid())
   conversationId String
   userId         String
-  joinedAt       DateTime @default(now())
+  role           ParticipantRole @default(MEMBER)
+  joinedAt       DateTime        @default(now())
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -1,12 +1,15 @@
 import { create } from 'zustand';
 import { api } from '../lib/api';
-import type { Conversation, Message, User } from '../types';
+import type { Conversation, ConversationMeta, Member, Message, User } from '../types';
 
 interface ChatState {
   conversations: Conversation[];
   activeId: string | null;
   messages: Record<string, Message[]>;
   peers: Record<string, User | null>;
+  metas: Record<string, ConversationMeta | null>;
+  members: Record<string, Member[]>;
+  contacts: User[];
   onlineUsers: Set<string>;
   typing: Record<string, string[]>; // conversationId -> usernames typing
 
@@ -14,6 +17,13 @@ interface ChatState {
   setActive: (id: string | null) => void;
   loadMessages: (conversationId: string) => Promise<void>;
   startConversation: (recipientId: string) => Promise<string>;
+  createGroup: (title: string, type: 'GROUP' | 'CHANNEL', memberIds: string[]) => Promise<string>;
+  loadMembers: (conversationId: string) => Promise<void>;
+
+  loadContacts: () => Promise<void>;
+  addContact: (contactId: string) => Promise<void>;
+  removeContact: (contactId: string) => Promise<void>;
+  isContact: (userId: string) => boolean;
 
   upsertMessage: (msg: Message) => void;
   replacePending: (tempId: string, msg: Message) => void;
@@ -31,6 +41,9 @@ export const useChat = create<ChatState>((set, get) => ({
   activeId: null,
   messages: {},
   peers: {},
+  metas: {},
+  members: {},
+  contacts: [],
   onlineUsers: new Set(),
   typing: {},
 
@@ -46,6 +59,7 @@ export const useChat = create<ChatState>((set, get) => ({
     set((s) => ({
       messages: { ...s.messages, [conversationId]: res.data.messages },
       peers: { ...s.peers, [conversationId]: res.data.peer },
+      metas: { ...s.metas, [conversationId]: res.data.conversation },
     }));
   },
 
@@ -55,6 +69,35 @@ export const useChat = create<ChatState>((set, get) => ({
     await get().loadConversations();
     return id;
   },
+
+  createGroup: async (title, type, memberIds) => {
+    const res = await api.post('/conversations/group', { title, type, memberIds });
+    const id = res.data.conversationId as string;
+    await get().loadConversations();
+    return id;
+  },
+
+  loadMembers: async (conversationId) => {
+    const res = await api.get(`/conversations/${conversationId}/members`);
+    set((s) => ({ members: { ...s.members, [conversationId]: res.data.members } }));
+  },
+
+  loadContacts: async () => {
+    const res = await api.get('/contacts');
+    set({ contacts: res.data.contacts });
+  },
+
+  addContact: async (contactId) => {
+    await api.post('/contacts', { contactId });
+    await get().loadContacts();
+  },
+
+  removeContact: async (contactId) => {
+    await api.delete(`/contacts/${contactId}`);
+    set((s) => ({ contacts: s.contacts.filter((c) => c.id !== contactId) }));
+  },
+
+  isContact: (userId) => get().contacts.some((c) => c.id === userId),
 
   upsertMessage: (msg) => {
     set((s) => {
@@ -67,11 +110,8 @@ export const useChat = create<ChatState>((set, get) => ({
           },
         };
       }
-      return {
-        messages: { ...s.messages, [msg.conversationId]: [...list, msg] },
-      };
+      return { messages: { ...s.messages, [msg.conversationId]: [...list, msg] } };
     });
-    // Bump conversation list ordering / preview.
     get().loadConversations();
   },
 
@@ -79,9 +119,7 @@ export const useChat = create<ChatState>((set, get) => ({
     set((s) => {
       const list = s.messages[msg.conversationId] ?? [];
       const filtered = list.filter((m) => m.id !== tempId && m.id !== msg.id);
-      return {
-        messages: { ...s.messages, [msg.conversationId]: [...filtered, msg] },
-      };
+      return { messages: { ...s.messages, [msg.conversationId]: [...filtered, msg] } };
     });
   },
 
@@ -144,9 +182,7 @@ export const useChat = create<ChatState>((set, get) => ({
   setTyping: (conversationId, username, isTyping) => {
     set((s) => {
       const current = s.typing[conversationId] ?? [];
-      const next = isTyping
-        ? [...new Set([...current, username])]
-        : current.filter((u) => u !== username);
+      const next = isTyping ? [...new Set([...current, username])] : current.filter((u) => u !== username);
       return { typing: { ...s.typing, [conversationId]: next } };
     });
   },

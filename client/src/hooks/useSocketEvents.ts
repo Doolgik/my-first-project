@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { connectPusher, disconnectPusher, PRESENCE_CHANNEL, userChannelName } from '../lib/socket';
 import { useChat } from '../store/chat';
+import { useCalls } from '../store/calls';
 import { useAuth } from '../store/auth';
 import { api } from '../lib/api';
 import type { Message } from '../types';
@@ -50,12 +51,37 @@ export function useSocketEvents() {
     const onTypingStop = (d: { conversationId: string; username: string }) =>
       useChat.getState().setTyping(d.conversationId, d.username, false);
 
+    // Group / channel membership changes.
+    const onConversationChange = (d: { conversationId: string }) => {
+      useChat.getState().loadConversations();
+      const active = useChat.getState().activeId;
+      if (active && active === d?.conversationId) {
+        useChat.getState().loadMembers(active);
+        useChat.getState().loadMessages(active);
+      }
+    };
+    const onConversationRemoved = (d: { conversationId: string }) => {
+      if (useChat.getState().activeId === d.conversationId) useChat.getState().setActive(null);
+      useChat.getState().loadConversations();
+    };
+
+    // WebRTC call signaling.
+    const onCallSignal = (d: any) => useCalls.getState().handleSignal(d);
+
     channel.bind('message:new', onNew);
     channel.bind('message:edited', onEdited);
     channel.bind('message:deleted', onDeleted);
     channel.bind('message:read', onRead);
     channel.bind('typing:start', onTypingStart);
     channel.bind('typing:stop', onTypingStop);
+    channel.bind('conversation:new', onConversationChange);
+    channel.bind('conversation:updated', onConversationChange);
+    channel.bind('conversation:members', onConversationChange);
+    channel.bind('conversation:removed', onConversationRemoved);
+    channel.bind('call:signal', onCallSignal);
+
+    // Load contacts once on connect.
+    useChat.getState().loadContacts();
 
     return () => {
       channel.unbind_all();

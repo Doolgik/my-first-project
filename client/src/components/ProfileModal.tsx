@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { useAuth } from '../store/auth';
 import { api, apiErrorMessage } from '../lib/api';
 import { disconnectPusher } from '../lib/socket';
+import { resizeImage } from '../lib/image';
 import Avatar from './Avatar';
 
 interface Props {
@@ -40,8 +41,9 @@ export default function ProfileModal({ onClose }: Props) {
     setUploading(true);
     setError('');
     try {
+      const resized = await resizeImage(file);
       const fd = new FormData();
-      fd.append('avatar', file);
+      fd.append('avatar', resized, 'avatar.jpg');
       const res = await api.post('/users/me/avatar', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       setUser({ ...user!, ...res.data.user });
     } catch (err) {
