@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import ChatWindow from '../components/ChatWindow';
 import ProfileModal from '../components/ProfileModal';
@@ -8,10 +8,32 @@ import GroupInfoModal from '../components/GroupInfoModal';
 import CallOverlay from '../components/CallOverlay';
 import { useChat } from '../store/chat';
 import { useSocketEvents } from '../hooks/useSocketEvents';
+import { registerServiceWorker, enablePushNotifications } from '../lib/push';
 
 export default function ChatLayout() {
   useSocketEvents();
   const { activeId, metas, setActive } = useChat();
+
+  // Service worker + push: register, re-subscribe if already granted, and let
+  // notification clicks open the right conversation.
+  useEffect(() => {
+    registerServiceWorker().then(() => {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        enablePushNotifications().catch(() => {});
+      }
+    });
+    const onMsg = (e: MessageEvent) => {
+      if (e.data?.type === 'open-conversation' && e.data.conversationId) setActive(e.data.conversationId);
+    };
+    navigator.serviceWorker?.addEventListener('message', onMsg);
+    const params = new URLSearchParams(window.location.search);
+    const c = params.get('c');
+    if (c) {
+      setActive(c);
+      window.history.replaceState({}, '', '/');
+    }
+    return () => navigator.serviceWorker?.removeEventListener('message', onMsg);
+  }, [setActive]);
   const [showSettings, setShowSettings] = useState(false);
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
   const [groupInfo, setGroupInfo] = useState(false);

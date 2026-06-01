@@ -24,7 +24,8 @@ export default function CallOverlay() {
   const label =
     state === 'incoming' ? `Incoming ${isVideo ? 'video ' : ''}call` :
     state === 'outgoing' ? 'Ringing…' :
-    state === 'connecting' ? 'Connecting…' : 'Connected';
+    state === 'connecting' ? 'Connecting…' :
+    state === 'ended' ? (error ?? 'Call ended') : 'Connected';
 
   return (
     <div className="app-bg fixed inset-0 z-50 flex flex-col text-white">
@@ -61,7 +62,11 @@ export default function CallOverlay() {
       {/* Controls */}
       <div className="flex items-center justify-center gap-5 p-6 pb-safe">
         <div className="glass flex items-center gap-4 rounded-[2rem] px-6 py-4">
-          {state === 'incoming' ? (
+          {state === 'ended' ? (
+            <button onClick={() => endCall(false)} className="flex h-14 items-center gap-2 rounded-full bg-white/10 px-6 font-medium transition hover:bg-white/15" aria-label="Close">
+              Close
+            </button>
+          ) : state === 'incoming' ? (
             <>
               <button onClick={rejectCall} className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500 shadow-lg shadow-red-500/30 transition hover:bg-red-400 active:scale-95" aria-label="Decline">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.34.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 3.07 9.5"/><path d="M22 2 2 22"/></svg>

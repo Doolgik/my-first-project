@@ -3,6 +3,7 @@ import { useAuth } from '../store/auth';
 import { api, apiErrorMessage } from '../lib/api';
 import { disconnectPusher } from '../lib/socket';
 import { resizeImage } from '../lib/image';
+import { enablePushNotifications, disablePushNotifications, notificationPermission, pushSupported } from '../lib/push';
 import Avatar from './Avatar';
 
 interface Props {
@@ -17,7 +18,18 @@ export default function ProfileModal({ onClose }: Props) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
+  const [notif, setNotif] = useState<NotificationPermission | 'unsupported'>(notificationPermission());
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const toggleNotifications = async () => {
+    if (notif === 'granted') {
+      await disablePushNotifications();
+      setNotif('default');
+    } else {
+      const ok = await enablePushNotifications();
+      setNotif(ok ? 'granted' : notificationPermission());
+    }
+  };
 
   const save = async () => {
     setSaving(true);
@@ -59,9 +71,9 @@ export default function ProfileModal({ onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-30 flex items-end justify-center bg-black/50 backdrop-blur-md sm:items-center" onClick={onClose}>
+    <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/50 backdrop-blur-md p-4" onClick={onClose}>
       <div
-        className="w-full max-w-md animate-sheet rounded-t-3xl glass-card p-5 pb-safe shadow-2xl sm:rounded-3xl"
+        className="w-full max-w-md animate-pop rounded-3xl glass-card p-5 pb-safe shadow-2xl "
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
@@ -104,6 +116,23 @@ export default function ProfileModal({ onClose }: Props) {
             />
           </div>
           <div className="text-xs text-slate-500">@{user?.username} · {user?.email}</div>
+
+          {pushSupported() && (
+            <button
+              onClick={toggleNotifications}
+              disabled={notif === 'denied'}
+              className="flex w-full items-center justify-between rounded-2xl bg-white/[0.06] px-4 py-3 text-left transition hover:bg-white/10 disabled:opacity-60"
+            >
+              <span className="flex items-center gap-2 text-sm text-slate-200">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
+                Push notifications
+              </span>
+              <span className={`text-xs font-medium ${notif === 'granted' ? 'text-emerald-400' : notif === 'denied' ? 'text-red-400' : 'text-brand-400'}`}>
+                {notif === 'granted' ? 'On' : notif === 'denied' ? 'Blocked' : 'Enable'}
+              </span>
+            </button>
+          )}
+
           {error && <p className="text-sm text-red-400">{error}</p>}
 
           <button className="btn-primary w-full" onClick={save} disabled={saving}>

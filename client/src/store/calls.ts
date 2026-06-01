@@ -1,11 +1,16 @@
 import { create } from 'zustand';
 import { api } from '../lib/api';
+import { startRingtone, stopRingtone } from '../lib/ringtone';
 import type { CallMedia, CallState, User } from '../types';
 
+// STUN for direct connections + free public TURN (Open Relay) so calls also
+// connect across strict/symmetric NATs where STUN alone fails.
 const ICE_SERVERS: RTCIceServer[] = [
   { urls: 'stun:stun.l.google.com:19302' },
   { urls: 'stun:stun1.l.google.com:19302' },
-  { urls: 'stun:global.stun.twilio.com:3478' },
+  { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
 ];
 
 interface CallSignal {
@@ -47,6 +52,14 @@ function send(toUserId: string, type: string, callId: string, extra: Record<stri
   api.post('/calls/signal', { toUserId, type, callId, ...extra }).catch(() => {});
 }
 
+function mediaError(err: unknown): string {
+  const name = (err as DOMException)?.name;
+  if (name === 'NotAllowedError') return 'Microphone/camera permission denied';
+  if (name === 'NotFoundError') return 'No microphone/camera found';
+  if (name === 'NotReadableError') return 'Mic/camera is in use by another app';
+  return (err as Error)?.message ?? 'Could not access microphone/camera';
+}
+
 function teardown() {
   if (ringTimeout) {
     clearTimeout(ringTimeout);
@@ -76,6 +89,7 @@ export const useCalls = create<CallsState>((set, get) => {
     conn.onconnectionstatechange = () => {
       if (conn.connectionState === 'connected') {
         if (ringTimeout) { clearTimeout(ringTimeout); ringTimeout = null; }
+        stopRingtone();
         set({ state: 'active' });
       }
       if (['failed', 'disconnected', 'closed'].includes(conn.connectionState)) {
@@ -125,14 +139,17 @@ export const useCalls = create<CallsState>((set, get) => {
           if (get().state === 'outgoing') get().endCall(true);
         }, 35000);
       } catch (err) {
-        set({ error: (err as Error)?.message ?? 'Could not access microphone/camera', state: 'idle' });
+        stopRingtone();
         teardown();
+        set({ error: mediaError(err), state: 'ended' });
+        setTimeout(() => { if (get().state === 'ended') set({ state: 'idle', error: null, peer: null }); }, 3000);
       }
     },
 
     acceptCall: async () => {
       const { peer, callId, media } = get();
       if (!peer || !callId || !pendingOffer) return;
+      stopRingtone();
       set({ state: 'connecting' });
       try {
         const stream = await getMedia(media);
@@ -145,13 +162,14 @@ export const useCalls = create<CallsState>((set, get) => {
         await pc.setLocalDescription(answer);
         send(peer.id, 'answer', callId, { payload: answer });
       } catch (err) {
-        set({ error: 'Could not access microphone/camera' });
+        set({ error: mediaError(err) });
         get().endCall(true);
       }
     },
 
     rejectCall: () => {
       const { peer, callId } = get();
+      stopRingtone();
       if (peer && callId) send(peer.id, 'reject', callId);
       teardown();
       set({ state: 'idle', callId: null, peer: null, localStream: null, remoteStream: null });
@@ -159,6 +177,7 @@ export const useCalls = create<CallsState>((set, get) => {
 
     endCall: (notify = true) => {
       const { peer, callId, localStream, state } = get();
+      stopRingtone();
       if (notify && peer && callId) {
         send(peer.id, state === 'outgoing' ? 'cancel' : 'end', callId);
       }
@@ -196,7 +215,9 @@ export const useCalls = create<CallsState>((set, get) => {
             peer: s.from ?? ({ id: s.fromUserId, username: '', displayName: 'Unknown' } as User),
             media: s.media ?? 'audio',
             isCaller: false,
+            error: null,
           });
+          startRingtone();
           break;
         }
         case 'answer': {
@@ -218,6 +239,7 @@ export const useCalls = create<CallsState>((set, get) => {
         case 'cancel':
         case 'busy': {
           if (cur.callId === s.callId || cur.state !== 'idle') {
+            stopRingtone();
             cur.localStream?.getTracks().forEach((t) => t.stop());
             teardown();
             set({

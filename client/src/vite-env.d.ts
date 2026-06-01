@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_PUSHER_HOST?: string;
   readonly VITE_PUSHER_PORT?: string;
   readonly VITE_PUSHER_USE_TLS?: string;
+  readonly VITE_PUSHER_WS_PATH?: string;
+  readonly VITE_VAPID_PUBLIC_KEY?: string;
 }
 
 interface ImportMeta {

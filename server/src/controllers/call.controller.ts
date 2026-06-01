@@ -4,6 +4,7 @@ import { asyncHandler } from '../utils/errors.js';
 import { AuthRequest } from '../middleware/auth.js';
 import { callSignalSchema } from '../utils/validation.js';
 import { triggerToUser } from '../lib/realtime.js';
+import { sendPushToUsers } from '../lib/push.js';
 import { userPublicSelect } from './conversation.service.js';
 
 /**
@@ -16,9 +17,15 @@ export const sendSignal = asyncHandler(async (req: AuthRequest, res: Response) =
 
   // Include the caller's public profile on the initial offer so the callee can
   // render an incoming-call screen without an extra request.
-  let from: unknown = { id: req.userId, username: req.username };
+  let from: any = { id: req.userId, username: req.username };
   if (data.type === 'offer') {
     from = await prisma.user.findUnique({ where: { id: req.userId }, select: userPublicSelect });
+    sendPushToUsers([data.toUserId], {
+      title: from?.displayName ?? 'Incoming call',
+      body: `Incoming ${data.media === 'video' ? 'video ' : ''}call`,
+      tag: `call-${data.callId}`,
+      type: 'call',
+    }).catch(() => {});
   }
 
   await triggerToUser(data.toUserId, 'call:signal', {

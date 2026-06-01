@@ -40,8 +40,8 @@ export default function UserProfileModal({ userId, onClose, onOpenConversation }
   };
 
   return (
-    <div className="fixed inset-0 z-30 flex items-end justify-center bg-black/50 backdrop-blur-md sm:items-center" onClick={onClose}>
-      <div className="w-full max-w-md animate-sheet rounded-t-3xl glass-card p-6 pb-safe shadow-2xl sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/50 backdrop-blur-md p-4" onClick={onClose}>
+      <div className="w-full max-w-md animate-pop rounded-3xl glass-card p-6 pb-safe shadow-2xl " onClick={(e) => e.stopPropagation()}>
         <div className="mb-2 flex justify-end">
           <button onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-white/[0.06]" aria-label="Close">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>

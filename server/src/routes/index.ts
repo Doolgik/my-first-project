@@ -10,6 +10,7 @@ import * as realtime from '../controllers/realtime.controller.js';
 import * as groups from '../controllers/group.controller.js';
 import * as contacts from '../controllers/contact.controller.js';
 import * as calls from '../controllers/call.controller.js';
+import * as push from '../controllers/push.controller.js';
 
 const router = Router();
 
@@ -58,6 +59,10 @@ router.delete('/contacts/:contactId', authenticate, contacts.removeContact);
 
 // --- Calls (WebRTC signaling relay) ---
 router.post('/calls/signal', authenticate, calls.sendSignal);
+
+// --- Web push subscriptions ---
+router.post('/push/subscribe', authenticate, push.subscribe);
+router.post('/push/unsubscribe', authenticate, push.unsubscribe);
 
 // --- Realtime (Pusher) channel authorization ---
 router.post('/realtime/auth', authenticate, realtime.authorizeChannel);

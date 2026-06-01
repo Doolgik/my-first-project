@@ -63,8 +63,8 @@ export default function GroupInfoModal({ meta, onClose, onLeft, onOpenProfile }:
   };
 
   return (
-    <div className="fixed inset-0 z-30 flex items-end justify-center bg-black/50 backdrop-blur-md sm:items-center" onClick={onClose}>
-      <div className="flex max-h-[88vh] w-full max-w-md animate-fade-in flex-col rounded-t-3xl glass-card shadow-2xl sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/50 backdrop-blur-md p-4" onClick={onClose}>
+      <div className="flex max-h-[88vh] w-full max-w-md animate-fade-in flex-col rounded-3xl glass-card shadow-2xl " onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-white/8 px-5 py-4">
           <h2 className="text-lg font-semibold text-white">{meta.type === 'CHANNEL' ? 'Channel' : 'Group'} info</h2>
           <button onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-white/[0.06]" aria-label="Close">
