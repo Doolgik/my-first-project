@@ -1,0 +1,693 @@
+/* Мобильный интерфейс инструмента барбера.
+   Вёрстка рассчитана только на телефон: экран держат в руке над клиентом,
+   поэтому крупные тач-зоны, тёмный фон и высокий контраст. */
+
+:root {
+  --bg: #0d0d0f;
+  --surface: #16161a;
+  --surface-2: #1e1e24;
+  --line: #2a2a32;
+  --text: #f2f2f4;
+  --muted: #8b8b96;
+  --accent: #d99a3f;
+  --accent-dim: #8a6227;
+  --good: #4ea87a;
+  --warn: #d9743f;
+  --bad: #c9524d;
+  --radius: 14px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.45;
+  overscroll-behavior-y: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+/* ---------- Каркас ---------- */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  padding-top: var(--safe-top);
+}
+
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 18px calc(20px + var(--safe-bottom));
+  animation: fade 0.22s ease;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.topbar__back {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--surface-2);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.topbar__title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.topbar__step {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Типографика ---------- */
+
+h1 {
+  font-size: 27px;
+  line-height: 1.15;
+  margin: 0 0 10px;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 17px;
+  margin: 0 0 10px;
+  letter-spacing: -0.01em;
+}
+
+.lead {
+  color: var(--muted);
+  margin: 0 0 22px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.tiny {
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+/* ---------- Кнопки ---------- */
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 18px;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #16110a;
+  font-weight: 650;
+  font-size: 16px;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
+.btn:active {
+  transform: scale(0.985);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.btn--ghost {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+
+.btn--sm {
+  min-height: 42px;
+  font-size: 14.5px;
+  border-radius: 11px;
+}
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+/* ---------- Карточки ---------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.card--flat {
+  background: var(--surface-2);
+}
+
+/* ---------- Экран «только телефон» ---------- */
+
+.gate {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.gate__inner {
+  max-width: 380px;
+}
+
+.gate__icon {
+  font-size: 46px;
+  margin-bottom: 18px;
+}
+
+/* ---------- Камера ---------- */
+
+.camera {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #000;
+  border: 1px solid var(--line);
+}
+
+.camera video,
+.camera canvas,
+.camera img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera video {
+  transform: scaleX(-1);
+}
+
+.camera canvas {
+  transform: scaleX(-1);
+  pointer-events: none;
+}
+
+.camera__hint {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  padding: 11px 14px;
+  border-radius: 11px;
+  background: rgba(13, 13, 15, 0.86);
+  backdrop-filter: blur(8px);
+  font-size: 14px;
+  text-align: center;
+  border: 1px solid var(--line);
+}
+
+.camera__hint--ok {
+  border-color: var(--accent-dim);
+  color: var(--accent);
+}
+
+.camera__badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(13, 13, 15, 0.86);
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid var(--line);
+}
+
+/* ---------- Шаги захвата ---------- */
+
+.angles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.angle {
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 8px 4px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 3 / 4;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.angle img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.angle span {
+  position: relative;
+  z-index: 1;
+  background: rgba(13, 13, 15, 0.8);
+  padding: 2px 0;
+}
+
+.angle--active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.angle--done {
+  border-color: var(--accent-dim);
+}
+
+/* ---------- Коллаж ---------- */
+
+.collage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.collage__cell {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: 11px;
+  overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.collage__cell img,
+.collage__cell svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.collage__cell img {
+  object-fit: cover;
+}
+
+.collage__label {
+  position: absolute;
+  left: 7px;
+  bottom: 7px;
+  z-index: 2;
+  font-size: 10.5px;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: rgba(13, 13, 15, 0.82);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---------- Метрики ---------- */
+
+.metric {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14.5px;
+}
+
+.metric:last-child {
+  border-bottom: none;
+}
+
+.metric__value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.shape {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.shape__name {
+  font-size: 23px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.confidence {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* ---------- Список причин ---------- */
+
+.reasons {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reasons li {
+  position: relative;
+  padding-left: 18px;
+  margin-bottom: 8px;
+  font-size: 14.5px;
+  line-height: 1.42;
+}
+
+.reasons li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 8px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.reasons--con li::before {
+  background: var(--warn);
+}
+
+.reasons li:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- Варианты стрижек ---------- */
+
+.styles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.style {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 13px 14px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  transition: border-color 0.14s ease;
+}
+
+.style--active {
+  border-color: var(--accent);
+  background: var(--surface-2);
+}
+
+.style__rank {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--surface-2);
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.style--active .style__rank {
+  background: var(--accent);
+  color: #16110a;
+}
+
+.style__body {
+  min-width: 0;
+  flex: 1;
+}
+
+/* Оба — span внутри span, поэтому блочность задаём явно: иначе название
+   и подпись слипаются в одну строку. */
+.style__name {
+  display: block;
+  font-weight: 600;
+  font-size: 15.5px;
+}
+
+.style__meta {
+  display: block;
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* ---------- Переключатели признаков ---------- */
+
+.field {
+  margin-bottom: 18px;
+}
+
+.field__label {
+  font-size: 13.5px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.choices {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.choice {
+  flex: 1 1 auto;
+  min-height: 44px;
+  padding: 0 13px;
+  border-radius: 11px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.choice--on {
+  border-color: var(--accent);
+  background: var(--surface-2);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ---------- Мастера ---------- */
+
+.master {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.master:last-child {
+  border-bottom: none;
+}
+
+.master__avatar {
+  width: 42px;
+  height: 42px;
+  flex: none;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--accent);
+}
+
+.master__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.master__name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.master__meta {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.master__price {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--accent-dim);
+  color: #f7e6cc;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.slots {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: 9px;
+}
+
+.slot {
+  padding: 8px 12px;
+  border-radius: 9px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.slot--on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ---------- Служебное ---------- */
+
+.notice {
+  padding: 12px 14px;
+  border-radius: 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.42;
+  margin-bottom: 12px;
+}
+
+.notice strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--line);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.center-state {
+  flex: 1;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.free-badge {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--good);
+  border: 1px solid var(--good);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-weight: 600;
+}
